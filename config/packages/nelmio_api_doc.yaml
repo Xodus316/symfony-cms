@@ -1,0 +1,34 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: Symfony CMS API
+            description: RESTful API for managing articles and tech products in a hybrid MySQL/MongoDB CMS
+            version: 1.0.0
+        servers:
+            - url: http://localhost
+              description: Development server
+        components:
+            securitySchemes:
+                Bearer:
+                    type: http
+                    scheme: bearer
+                    bearerFormat: JWT
+        security:
+            - Bearer: []
+        tags:
+            - name: Authentication
+              description: JWT authentication endpoints
+            - name: Articles
+              description: Article management endpoints (MySQL)
+            - name: TechProducts
+              description: Tech product management endpoints (MongoDB)
+            - name: Relationships
+              description: Article-TechProduct relationship endpoints
+
+    areas:
+        path_patterns:
+            - ^/api(?!/doc$)
+        host_patterns: []
+
+    models:
+        use_jms: false

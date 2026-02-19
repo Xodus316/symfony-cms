@@ -1,0 +1,102 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ techProduct ? 'Edit Tech Product' : 'Create Tech Product' }} - Symfony CMS Admin{% endblock %}
+
+{% block body %}
+<div class="card">
+    <div class="card-header">{{ techProduct ? 'Edit Tech Product' : 'Add New Tech Product' }}</div>
+
+    <form method="post">
+        <div class="form-group">
+            <label for="product_id">Product ID *</label>
+            <input type="text" id="product_id" name="product_id" value="{{ techProduct ? techProduct.productId : '' }}" required>
+            <small style="color: #7f8c8d; font-size: 0.875rem;">Unique identifier for this product (e.g., TP-2024-001)</small>
+        </div>
+
+        <div class="form-group">
+            <label for="name">Name *</label>
+            <input type="text" id="name" name="name" value="{{ techProduct ? techProduct.name : '' }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="specs">Specifications (JSON) *</label>
+            <textarea id="specs" name="specs" rows="12" required style="font-family: 'Monaco', 'Courier New', monospace; font-size: 0.875rem;">{{ specsJson is defined ? specsJson : (techProduct ? (techProduct.specs|json_encode(constant('JSON_PRETTY_PRINT'))) : '{}') }}</textarea>
+            <small style="color: #7f8c8d; font-size: 0.875rem;">
+                Enter specifications as JSON. Example:
+                <pre style="background: #f8f9fa; padding: 0.5rem; border-radius: 4px; margin-top: 0.25rem; font-size: 0.75rem;">{
+  "processor": "Intel i7-12700K",
+  "memory": "32GB DDR5",
+  "storage": "1TB NVMe SSD"
+}</pre>
+            </small>
+        </div>
+
+        <div class="form-group">
+            <label for="pricing">Pricing (JSON, optional)</label>
+            <textarea id="pricing" name="pricing" rows="5" style="font-family: 'Monaco', 'Courier New', monospace; font-size: 0.875rem;">{{ pricingJson is defined ? pricingJson : (techProduct and techProduct.pricing ? (techProduct.pricing|json_encode(constant('JSON_PRETTY_PRINT'))) : '') }}</textarea>
+            <small style="color: #7f8c8d; font-size: 0.875rem;">
+                Enter pricing information as JSON. Example:
+                <pre style="background: #f8f9fa; padding: 0.5rem; border-radius: 4px; margin-top: 0.25rem; font-size: 0.75rem;">{
+  "currency": "USD",
+  "amount": 1299.99,
+  "discount": 10
+}</pre>
+            </small>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button type="submit" class="btn btn-primary">{{ techProduct ? 'Update' : 'Create' }} Tech Product</button>
+            <a href="{{ path('admin_techproduct_list') }}" class="btn btn-secondary">Cancel</a>
+            <button type="button" class="btn btn-secondary" onclick="validateJSON()">Validate JSON</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    function validateJSON() {
+        const specsField = document.getElementById('specs');
+        const pricingField = document.getElementById('pricing');
+        
+        try {
+            JSON.parse(specsField.value);
+            alert('Specs JSON is valid!');
+        } catch (e) {
+            alert('Invalid Specs JSON: ' + e.message);
+            return;
+        }
+        
+        if (pricingField.value.trim()) {
+            try {
+                JSON.parse(pricingField.value);
+                alert('Pricing JSON is valid!');
+            } catch (e) {
+                alert('Invalid Pricing JSON: ' + e.message);
+                return;
+            }
+        }
+        
+        alert('All JSON fields are valid!');
+    }
+
+    // Auto-format JSON on blur
+    document.getElementById('specs').addEventListener('blur', function() {
+        try {
+            const obj = JSON.parse(this.value);
+            this.value = JSON.stringify(obj, null, 2);
+        } catch (e) {
+            // Invalid JSON, leave as is
+        }
+    });
+
+    document.getElementById('pricing').addEventListener('blur', function() {
+        if (this.value.trim()) {
+            try {
+                const obj = JSON.parse(this.value);
+                this.value = JSON.stringify(obj, null, 2);
+            } catch (e) {
+                // Invalid JSON, leave as is
+            }
+        }
+    });
+</script>
+{% endblock %}

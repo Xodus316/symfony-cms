@@ -1,0 +1,105 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard - Symfony CMS Admin{% endblock %}
+
+{% block body %}
+<div class="card">
+    <div class="card-header">Dashboard</div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+        <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <h3 style="margin-bottom: 0.5rem; font-size: 2rem;">{{ articleCount }}</h3>
+            <p style="opacity: 0.9;">Total Articles</p>
+            <a href="{{ path('admin_article_list') }}" class="btn btn-secondary" style="margin-top: 1rem;">Manage Articles</a>
+        </div>
+
+        <div class="card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+            <h3 style="margin-bottom: 0.5rem; font-size: 2rem;">{{ techProductCount }}</h3>
+            <p style="opacity: 0.9;">Tech Products</p>
+            <a href="{{ path('admin_techproduct_list') }}" class="btn btn-secondary" style="margin-top: 1rem;">Manage Products</a>
+        </div>
+
+        <div class="card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+            <h3 style="margin-bottom: 0.5rem; font-size: 2rem;">{{ userCount }}</h3>
+            <p style="opacity: 0.9;">Total Users</p>
+            <a href="{{ path('admin_user_list') }}" class="btn btn-secondary" style="margin-top: 1rem;">Manage Users</a>
+        </div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem;">
+    <div class="card">
+        <div class="card-header">Recent Articles</div>
+
+        {% if recentArticles is empty %}
+            <p style="color: #7f8c8d; text-align: center; padding: 2rem;">No articles yet</p>
+        {% else %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Published</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for article in recentArticles %}
+                        <tr>
+                            <td>
+                                <a href="{{ path('admin_article_edit', {id: article.id}) }}" style="color: #3498db; text-decoration: none;">
+                                    {{ article.title }}
+                                </a>
+                            </td>
+                            <td>{{ article.user.email }}</td>
+                            <td>{{ article.publishDate ? article.publishDate|date('Y-m-d') : 'Draft' }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <div class="card-header">Recent Tech Products</div>
+
+        {% if recentTechProducts is empty %}
+            <p style="color: #7f8c8d; text-align: center; padding: 2rem;">No tech products yet</p>
+        {% else %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product ID</th>
+                        <th>Name</th>
+                        <th>Created</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in recentTechProducts %}
+                        <tr>
+                            <td>
+                                <a href="{{ path('admin_techproduct_edit', {id: product.id}) }}" style="color: #3498db; text-decoration: none;">
+                                    {{ product.productId }}
+                                </a>
+                            </td>
+                            <td>{{ product.name }}</td>
+                            <td>{{ product.createdAt|date('Y-m-d') }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card" style="margin-top: 1.5rem;">
+    <div class="card-header">Quick Actions</div>
+
+    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+        <a href="{{ path('admin_article_create') }}" class="btn btn-primary">Create New Article</a>
+        <a href="{{ path('admin_techproduct_create') }}" class="btn btn-success">Add Tech Product</a>
+        {% if is_granted('ROLE_ADMIN') %}
+            <a href="{{ path('admin_user_create') }}" class="btn btn-secondary">Add User</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

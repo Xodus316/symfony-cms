@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Users - Symfony CMS Admin{% endblock %}
+
+{% block body %}
+<div class="card">
+    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <span>Users</span>
+        <a href="{{ path('admin_user_create') }}" class="btn btn-primary">Create New User</a>
+    </div>
+
+    {% if users is empty %}
+        <p style="text-align: center; padding: 3rem; color: #7f8c8d;">
+            No users found. <a href="{{ path('admin_user_create') }}" style="color: #3498db;">Create your first user</a>
+        </p>
+    {% else %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Email</th>
+                    <th>Roles</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td><strong>{{ user.email }}</strong></td>
+                        <td>
+                            {% for role in user.roles %}
+                                {% if role != 'ROLE_USER' %}
+                                    <span class="badge badge-{{ role == 'ROLE_ADMIN' ? 'admin' : (role == 'ROLE_EDITOR' ? 'editor' : 'viewer') }}">
+                                        {{ role|replace({'ROLE_': ''}) }}
+                                    </span>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>{{ user.createdAt|date('Y-m-d H:i') }}</td>
+                        <td>
+                            <div class="actions">
+                                <a href="{{ path('admin_user_edit', {id: user.id}) }}" class="btn btn-primary" style="padding: 0.25rem 0.75rem; font-size: 0.875rem;">Edit</a>
+                                {% if user.id != app.user.id %}
+                                    <form method="post" action="{{ path('admin_user_delete', {id: user.id}) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete-user-' ~ user.id) }}">
+                                        <button type="submit" class="btn btn-danger" style="padding: 0.25rem 0.75rem; font-size: 0.875rem;">Delete</button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+{% endblock %}

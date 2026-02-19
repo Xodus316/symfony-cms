@@ -1,0 +1,87 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ article ? 'Edit Article' : 'Create Article' }} - Symfony CMS Admin{% endblock %}
+
+{% block body %}
+<div class="card">
+    <div class="card-header">{{ article ? 'Edit Article' : 'Create New Article' }}</div>
+
+    <form method="post">
+        <div class="form-group">
+            <label for="title">Title *</label>
+            <input type="text" id="title" name="title" value="{{ article ? article.title : '' }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="slug">Slug (leave empty to auto-generate)</label>
+            <input type="text" id="slug" name="slug" value="{{ article ? article.slug : '' }}">
+        </div>
+
+        <div class="form-group">
+            <label for="author">Author Name (optional)</label>
+            <input type="text" id="author" name="author" value="{{ article ? article.author : '' }}">
+            <small style="color: #7f8c8d; font-size: 0.875rem;">Leave empty to use email: {{ app.user.email }}</small>
+        </div>
+
+        <div class="form-group">
+            <label for="content">Content *</label>
+            <textarea id="content" name="content" rows="15" required>{{ article ? article.content : '' }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="publish_date">Publish Date (leave empty for draft)</label>
+            <input type="datetime-local" id="publish_date" name="publish_date" value="{{ article and article.publishDate ? article.publishDate|date('Y-m-d\\TH:i') : '' }}">
+        </div>
+
+        <div class="form-group">
+            <label>Associated Tech Products</label>
+            <div id="techProductsContainer" style="margin-top: 0.5rem;">
+                {% if article and associatedProducts is defined %}
+                    {% for product in associatedProducts %}
+                        <div class="tech-product-item" style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <select name="tech_products[]" style="flex: 1;">
+                                <option value="">-- Select Product --</option>
+                                {% for techProduct in techProducts %}
+                                    <option value="{{ techProduct.id }}" {% if techProduct.id == product.id %}selected{% endif %}>
+                                        {{ techProduct.productId }} - {{ techProduct.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <button type="button" class="btn btn-danger" style="padding: 0.5rem 1rem;" onclick="this.parentElement.remove()">Remove</button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <button type="button" class="btn btn-secondary" style="margin-top: 0.5rem;" onclick="addTechProduct()">Add Tech Product</button>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button type="submit" class="btn btn-primary">{{ article ? 'Update' : 'Create' }} Article</button>
+            <a href="{{ path('admin_article_list') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    const techProductOptions = `
+        <option value="">-- Select Product --</option>
+        {% for techProduct in techProducts %}
+            <option value="{{ techProduct.id }}">{{ techProduct.productId }} - {{ techProduct.name }}</option>
+        {% endfor %}
+    `;
+
+    function addTechProduct() {
+        const container = document.getElementById('techProductsContainer');
+        const div = document.createElement('div');
+        div.className = 'tech-product-item';
+        div.style.cssText = 'display: flex; gap: 0.5rem; margin-bottom: 0.5rem;';
+        div.innerHTML = `
+            <select name="tech_products[]" style="flex: 1;">
+                ${techProductOptions}
+            </select>
+            <button type="button" class="btn btn-danger" style="padding: 0.5rem 1rem;" onclick="this.parentElement.remove()">Remove</button>
+        `;
+        container.appendChild(div);
+    }
+</script>
+{% endblock %}

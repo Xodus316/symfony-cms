@@ -1,0 +1,84 @@
+security:
+    # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
+    password_hashers:
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+
+    # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
+    providers:
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
+
+    # Role hierarchy - higher roles inherit lower role permissions
+    role_hierarchy:
+        ROLE_EDITOR: ROLE_VIEWER
+        ROLE_ADMIN: ROLE_EDITOR
+
+    firewalls:
+        dev:
+            # Ensure dev tools and static assets are always allowed
+            pattern: ^/(_profiler|_wdt|assets|build)/
+            security: false
+
+        login:
+            pattern: ^/api/login
+            stateless: true
+            json_login:
+                check_path: /api/login
+                username_path: email
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+
+        api:
+            pattern: ^/api
+            stateless: true
+            jwt: ~
+
+        admin:
+            pattern: ^/admin
+            lazy: true
+            provider: app_user_provider
+            form_login:
+                login_path: admin_login
+                check_path: admin_login
+                default_target_path: admin_dashboard
+                enable_csrf: true
+            logout:
+                path: admin_logout
+                target: admin_login
+
+        main:
+            lazy: true
+            provider: app_user_provider
+
+    # Note: Only the *first* matching rule is applied
+    access_control:
+        # Public endpoints
+        - { path: ^/api/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/token/refresh, roles: PUBLIC_ACCESS }
+
+        # API endpoints - require authentication
+        - { path: ^/api/v1/articles, roles: ROLE_VIEWER, methods: [GET] }
+        - { path: ^/api/v1/articles, roles: ROLE_EDITOR, methods: [POST, PUT, PATCH] }
+        - { path: ^/api/v1/articles, roles: ROLE_ADMIN, methods: [DELETE] }
+
+        - { path: ^/api/v1/techproducts, roles: ROLE_VIEWER, methods: [GET] }
+        - { path: ^/api/v1/techproducts, roles: ROLE_EDITOR, methods: [POST, PUT, PATCH] }
+        - { path: ^/api/v1/techproducts, roles: ROLE_ADMIN, methods: [DELETE] }
+
+        # Admin area - session-based
+        - { path: ^/admin/login, roles: PUBLIC_ACCESS }
+        - { path: ^/admin, roles: ROLE_VIEWER }
+
+when@test:
+    security:
+        password_hashers:
+            # Password hashers are resource-intensive by design to ensure security.
+            # In tests, it's safe to reduce their cost to improve performance.
+            Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
+                algorithm: auto
+                cost: 4 # Lowest possible value for bcrypt
+                time_cost: 3 # Lowest possible value for argon
+                memory_cost: 10 # Lowest possible value for argon
