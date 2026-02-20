@@ -44,6 +44,25 @@ class ArticleAdminController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}', name: 'show')]
+    public function show(string $id): Response
+    {
+        $article = $this->articleService->getArticleById($id);
+
+        if (!$article) {
+            throw $this->createNotFoundException('Article not found');
+        }
+
+        $this->denyAccessUnlessGranted(ArticleVoter::VIEW, $article);
+
+        $techProducts = $this->articleTechProductService->getTechProductsForArticle($article);
+
+        return $this->render('admin/article/show.html.twig', [
+            'article' => $article,
+            'techProducts' => $techProducts,
+        ]);
+    }
+
     #[Route('/create', name: 'create')]
     #[IsGranted('ROLE_EDITOR')]
     public function create(Request $request): Response
@@ -95,7 +114,7 @@ class ArticleAdminController extends AbstractController
 
     #[Route('/{id}/edit', name: 'edit')]
     #[IsGranted('ROLE_EDITOR')]
-    public function edit(int $id, Request $request): Response
+    public function edit(string $id, Request $request): Response
     {
         $article = $this->articleService->getArticleById($id);
 
@@ -167,7 +186,7 @@ class ArticleAdminController extends AbstractController
 
     #[Route('/{id}/delete', name: 'delete', methods: ['POST'])]
     #[IsGranted('ROLE_ADMIN')]
-    public function delete(int $id, Request $request): Response
+    public function delete(string $id, Request $request): Response
     {
         $article = $this->articleService->getArticleById($id);
 

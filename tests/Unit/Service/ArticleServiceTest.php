@@ -77,12 +77,14 @@ class ArticleServiceTest extends TestCase
         $article = new Article();
         $article->setTitle('Test Article');
 
+        $uuid = '550e8400-e29b-41d4-a716-446655440000';
+
         $this->articleRepository->expects($this->once())
             ->method('find')
-            ->with(1)
+            ->with($uuid)
             ->willReturn($article);
 
-        $result = $this->articleService->getArticleById(1);
+        $result = $this->articleService->getArticleById($uuid);
 
         $this->assertSame($article, $result);
     }

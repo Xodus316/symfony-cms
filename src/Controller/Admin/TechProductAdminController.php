@@ -40,6 +40,22 @@ class TechProductAdminController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}', name: 'show')]
+    public function show(string $id): Response
+    {
+        $techProduct = $this->techProductService->getTechProductById($id);
+
+        if (!$techProduct) {
+            throw $this->createNotFoundException('Tech product not found');
+        }
+
+        $this->denyAccessUnlessGranted(TechProductVoter::VIEW, $techProduct);
+
+        return $this->render('admin/techproduct/show.html.twig', [
+            'techProduct' => $techProduct,
+        ]);
+    }
+
     #[Route('/create', name: 'create')]
     #[IsGranted('ROLE_EDITOR')]
     public function create(Request $request): Response

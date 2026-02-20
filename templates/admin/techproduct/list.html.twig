@@ -37,7 +37,11 @@
                                 {{ product.productId }}
                             </code>
                         </td>
-                        <td><strong>{{ product.name }}</strong></td>
+                        <td>
+                            <a href="{{ path('admin_techproduct_show', {id: product.id}) }}" style="color: #2c3e50; text-decoration: none; font-weight: bold;">
+                                {{ product.name }}
+                            </a>
+                        </td>
                         <td>
                             <details style="cursor: pointer;">
                                 <summary style="color: #3498db;">View Specs</summary>

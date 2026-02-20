@@ -54,9 +54,9 @@ class ArticleController extends AbstractController
     /**
      * Get a single article by ID
      */
-    #[Route('/{id}', name: 'get', methods: ['GET'], requirements: ['id' => '\d+'])]
+    #[Route('/{id}', name: 'get', methods: ['GET'])]
     #[IsGranted('ROLE_VIEWER')]
-    public function get(int $id): JsonResponse
+    public function get(string $id): JsonResponse
     {
         $article = $this->articleService->getArticleById($id);
 
@@ -104,10 +104,10 @@ class ArticleController extends AbstractController
     /**
      * Update an existing article
      */
-    #[Route('/{id}', name: 'update', methods: ['PUT', 'PATCH'], requirements: ['id' => '\d+'])]
+    #[Route('/{id}', name: 'update', methods: ['PUT', 'PATCH'])]
     #[IsGranted('ROLE_EDITOR')]
     public function update(
-        int $id,
+        string $id,
         #[MapRequestPayload] UpdateArticleDTO $dto
     ): JsonResponse {
         $article = $this->articleService->getArticleById($id);
@@ -126,9 +126,9 @@ class ArticleController extends AbstractController
     /**
      * Get article with embedded tech products (hybrid MySQL + MongoDB query)
      */
-    #[Route('/{id}/with-products', name: 'get_with_products', methods: ['GET'], requirements: ['id' => '\d+'])]
+    #[Route('/{id}/with-products', name: 'get_with_products', methods: ['GET'])]
     #[IsGranted('ROLE_VIEWER')]
-    public function getWithProducts(int $id): JsonResponse
+    public function getWithProducts(string $id): JsonResponse
     {
         $article = $this->articleService->getArticleById($id);
 
@@ -151,9 +151,9 @@ class ArticleController extends AbstractController
     /**
      * Delete an article
      */
-    #[Route('/{id}', name: 'delete', methods: ['DELETE'], requirements: ['id' => '\d+'])]
+    #[Route('/{id}', name: 'delete', methods: ['DELETE'])]
     #[IsGranted('ROLE_ADMIN')]
-    public function delete(int $id): JsonResponse
+    public function delete(string $id): JsonResponse
     {
         $article = $this->articleService->getArticleById($id);
 
