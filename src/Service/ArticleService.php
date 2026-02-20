@@ -91,7 +91,7 @@ class ArticleService
     /**
      * Get article by ID
      */
-    public function getArticleById(int $id): ?Article
+    public function getArticleById(string $id): ?Article
     {
         return $this->articleRepository->find($id);
     }

@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\ArticleTechProductRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: ArticleTechProductRepository::class)]
 #[ORM\Table(name: 'article_techproduct')]
@@ -14,9 +15,8 @@ use Doctrine\ORM\Mapping as ORM;
 class ArticleTechProduct
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
+    #[ORM\Column(type: 'guid')]
+    private ?string $id = null;
 
     #[ORM\ManyToOne(targetEntity: Article::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
@@ -25,7 +25,7 @@ class ArticleTechProduct
     /**
      * MongoDB ObjectId stored as string
      */
-    #[ORM\Column(type: Types::STRING, length: 24)]
+    #[ORM\Column(type: Types::STRING, length: 36)]
     private ?string $techproductMongoId = null;
 
     #[ORM\Column(type: Types::INTEGER)]
@@ -36,10 +36,11 @@ class ArticleTechProduct
 
     public function __construct()
     {
+        $this->id = Uuid::v4()->toRfc4122();
         $this->createdAt = new \DateTimeImmutable();
     }
 
-    public function getId(): ?int
+    public function getId(): ?string
     {
         return $this->id;
     }

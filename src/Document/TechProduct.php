@@ -5,6 +5,7 @@ namespace App\Document;
 use App\Repository\TechProductRepository;
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Uid\Uuid;
 
 #[MongoDB\Document(collection: 'tech_products', repositoryClass: TechProductRepository::class)]
 #[MongoDB\Index(keys: ['productId' => 'asc'], options: ['unique' => true])]
@@ -12,7 +13,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[MongoDB\HasLifecycleCallbacks]
 class TechProduct
 {
-    #[MongoDB\Id]
+    #[MongoDB\Id(strategy: 'NONE', type: 'string')]
     #[Groups(['techproduct:read'])]
     private ?string $id = null;
 
@@ -49,6 +50,7 @@ class TechProduct
 
     public function __construct()
     {
+        $this->id = Uuid::v4()->toRfc4122();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
     }

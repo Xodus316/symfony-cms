@@ -26,7 +26,7 @@ class ArticleTechProductController extends AbstractController
      */
     #[Route('', name: 'list', methods: ['GET'])]
     #[IsGranted('ROLE_VIEWER')]
-    public function list(int $articleId): JsonResponse
+    public function list(string $articleId): JsonResponse
     {
         $article = $this->articleService->getArticleById($articleId);
 
@@ -52,7 +52,7 @@ class ArticleTechProductController extends AbstractController
      */
     #[Route('', name: 'associate', methods: ['POST'])]
     #[IsGranted('ROLE_EDITOR')]
-    public function associate(int $articleId, Request $request): JsonResponse
+    public function associate(string $articleId, Request $request): JsonResponse
     {
         $article = $this->articleService->getArticleById($articleId);
 
@@ -95,7 +95,7 @@ class ArticleTechProductController extends AbstractController
      */
     #[Route('/{techProductId}', name: 'dissociate', methods: ['DELETE'])]
     #[IsGranted('ROLE_EDITOR')]
-    public function dissociate(int $articleId, string $techProductId): JsonResponse
+    public function dissociate(string $articleId, string $techProductId): JsonResponse
     {
         $article = $this->articleService->getArticleById($articleId);
 
