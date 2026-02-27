@@ -7,7 +7,7 @@
     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
         <span>{{ article.title }}</span>
         <div class="actions">
-            {% if is_granted('EDIT', article) %}
+            {% if is_granted('ARTICLE_EDIT', article) %}
                 <a href="{{ path('admin_article_edit', {id: article.id}) }}" class="btn btn-primary" style="font-size: 0.875rem;">Edit</a>
             {% endif %}
             <a href="{{ path('admin_article_list') }}" class="btn btn-secondary" style="font-size: 0.875rem;">Back to List</a>
@@ -24,6 +24,9 @@
             <span class="badge badge-published">Published {{ article.publishDate|date('Y-m-d') }}</span>
         {% else %}
             <span class="badge badge-draft">Draft</span>
+        {% endif %}
+        {% if article.lockedBy %}
+            <span class="badge badge-locked">Locked by {{ article.lockedBy.email }}</span>
         {% endif %}
     </div>
 

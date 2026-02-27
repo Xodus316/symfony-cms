@@ -105,6 +105,18 @@ class ArticleAdminController extends AbstractController
 
         $this->denyAccessUnlessGranted(ArticleVoter::EDIT, $article);
 
+        // Auto-lock article for current user on GET
+        if (!$request->isMethod('POST')) {
+            if ($this->articleService->isLockedByOtherUser($article, $this->getUser())) {
+                $this->addFlash('error', sprintf(
+                    'This article is currently being edited by %s.',
+                    $article->getLockedBy()->getEmail()
+                ));
+                return $this->redirectToRoute('admin_article_list');
+            }
+            $this->articleService->lockArticle($article, $this->getUser());
+        }
+
         if ($request->isMethod('POST')) {
             $dto = new UpdateArticleDTO();
             $dto->title = $request->request->get('title');
@@ -145,6 +157,7 @@ class ArticleAdminController extends AbstractController
                     }
                 }
 
+                $this->articleService->unlockArticle($article);
                 $this->addFlash('success', 'Article updated successfully!');
                 return $this->redirectToRoute('admin_article_list');
             } catch (\Exception $e) {
@@ -184,6 +197,26 @@ class ArticleAdminController extends AbstractController
             } catch (\Exception $e) {
                 $this->addFlash('error', 'Error deleting article: ' . $e->getMessage());
             }
+        }
+
+        return $this->redirectToRoute('admin_article_list');
+    }
+
+    #[Route('/{id}/unlock', name: 'unlock', methods: ['POST'])]
+    #[IsGranted('ROLE_EDITOR')]
+    public function unlock(string $id, Request $request): Response
+    {
+        $article = $this->articleService->getArticleById($id);
+
+        if (!$article) {
+            throw $this->createNotFoundException('Article not found');
+        }
+
+        $this->denyAccessUnlessGranted(ArticleVoter::UNLOCK, $article);
+
+        if ($this->isCsrfTokenValid('unlock-article-' . $id, $request->request->get('_token'))) {
+            $this->articleService->unlockArticle($article);
+            $this->addFlash('success', 'Article unlocked successfully.');
         }
 
         return $this->redirectToRoute('admin_article_list');

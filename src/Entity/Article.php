@@ -55,6 +55,13 @@ class Article
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?User $lockedBy = null;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $lockedAt = null;
+
     public function __construct()
     {
         $this->id = Uuid::v4()->toRfc4122();
@@ -173,5 +180,34 @@ class Article
         $this->user = $user;
 
         return $this;
+    }
+
+    public function getLockedBy(): ?User
+    {
+        return $this->lockedBy;
+    }
+
+    public function setLockedBy(?User $lockedBy): static
+    {
+        $this->lockedBy = $lockedBy;
+
+        return $this;
+    }
+
+    public function getLockedAt(): ?\DateTimeImmutable
+    {
+        return $this->lockedAt;
+    }
+
+    public function setLockedAt(?\DateTimeImmutable $lockedAt): static
+    {
+        $this->lockedAt = $lockedAt;
+
+        return $this;
+    }
+
+    public function isLocked(): bool
+    {
+        return $this->lockedBy !== null;
     }
 }

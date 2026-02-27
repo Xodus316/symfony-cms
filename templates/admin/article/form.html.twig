@@ -6,6 +6,12 @@
 <div class="card">
     <div class="card-header">{{ article ? 'Edit Article' : 'Create New Article' }}</div>
 
+    {% if article and article.lockedBy %}
+        <div class="alert alert-info">
+            You have locked this article for editing. It will unlock when you save.
+        </div>
+    {% endif %}
+
     <form method="post">
         <div class="form-group">
             <label for="title">Title *</label>

@@ -68,6 +68,9 @@ class ArticleService
 
         if ($dto->publishDate !== null) {
             $article->setPublishDate($dto->publishDate);
+            // Auto-unlock when publishing
+            $article->setLockedBy(null);
+            $article->setLockedAt(null);
         }
 
         if ($dto->slug !== null && $dto->title === null) {
@@ -133,6 +136,34 @@ class ArticleService
     public function getTotalCount(): int
     {
         return $this->articleRepository->count([]);
+    }
+
+    public function lockArticle(Article $article, User $user): void
+    {
+        $article->setLockedBy($user);
+        $article->setLockedAt(new \DateTimeImmutable());
+        $this->entityManager->flush();
+    }
+
+    public function unlockArticle(Article $article): void
+    {
+        $article->setLockedBy(null);
+        $article->setLockedAt(null);
+        $this->entityManager->flush();
+    }
+
+    public function isLockedByOtherUser(Article $article, User $user): bool
+    {
+        if (!$article->isLocked()) {
+            return false;
+        }
+
+        // Expire stale locks (30 minutes)
+        if ($article->getLockedAt() < new \DateTimeImmutable('-30 minutes')) {
+            return false;
+        }
+
+        return $article->getLockedBy()->getId() !== $user->getId();
     }
 
     /**

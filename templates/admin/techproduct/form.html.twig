@@ -9,7 +9,12 @@
     <form method="post">
         <div class="form-group">
             <label for="product_id">Product ID *</label>
-            <input type="text" id="product_id" name="product_id" value="{{ techProduct ? techProduct.productId : '' }}" required>
+            <div style="display: flex; gap: 0.5rem;">
+                <input type="text" id="product_id" name="product_id" value="{{ techProduct ? techProduct.productId : '' }}" required style="flex: 1;">
+                {% if not techProduct %}
+                    <button type="button" class="btn btn-secondary" onclick="generateUUID()" style="white-space: nowrap;">Generate UUID</button>
+                {% endif %}
+            </div>
             <small style="color: #7f8c8d; font-size: 0.875rem;">Unique identifier for this product (e.g., TP-2024-001)</small>
         </div>
 
@@ -53,6 +58,10 @@
 </div>
 
 <script>
+    function generateUUID() {
+        document.getElementById('product_id').value = crypto.randomUUID();
+    }
+
     function validateJSON() {
         const specsField = document.getElementById('specs');
         const pricingField = document.getElementById('pricing');

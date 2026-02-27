@@ -27,6 +27,7 @@
                     <th>Slug</th>
                     <th>Author</th>
                     <th>Published</th>
+                    <th>Status</th>
                     <th>Created</th>
                     <th>Actions</th>
                 </tr>
@@ -53,13 +54,26 @@
                                 <span class="badge badge-draft">Draft</span>
                             {% endif %}
                         </td>
+                        <td>
+                            {% if article.lockedBy %}
+                                <span class="badge badge-locked" title="Locked at {{ article.lockedAt|date('Y-m-d H:i') }}">
+                                    Locked by {{ article.lockedBy.email }}
+                                </span>
+                                {% if is_granted('ARTICLE_UNLOCK', article) %}
+                                    <form method="post" action="{{ path('admin_article_unlock', {id: article.id}) }}" style="display: inline;">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('unlock-article-' ~ article.id) }}">
+                                        <button type="submit" class="btn btn-secondary" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;">Unlock</button>
+                                    </form>
+                                {% endif %}
+                            {% endif %}
+                        </td>
                         <td>{{ article.createdAt|date('Y-m-d H:i') }}</td>
                         <td>
                             <div class="actions">
-                                {% if is_granted('EDIT', article) %}
+                                {% if is_granted('ARTICLE_EDIT', article) %}
                                     <a href="{{ path('admin_article_edit', {id: article.id}) }}" class="btn btn-primary" style="padding: 0.25rem 0.75rem; font-size: 0.875rem;">Edit</a>
                                 {% endif %}
-                                {% if is_granted('DELETE', article) %}
+                                {% if is_granted('ARTICLE_DELETE', article) %}
                                     <form method="post" action="{{ path('admin_article_delete', {id: article.id}) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this article?');">
                                         <input type="hidden" name="_token" value="{{ csrf_token('delete-article-' ~ article.id) }}">
                                         <button type="submit" class="btn btn-danger" style="padding: 0.25rem 0.75rem; font-size: 0.875rem;">Delete</button>
